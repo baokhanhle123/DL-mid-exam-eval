@@ -5,23 +5,13 @@ import matplotlib.pyplot as plt
 from util import th2np
 
 def get_argmax_mu(pi,mu):
-    """
-    :param pi: [N x K x D]
-    :param mu: [N x K x D]
-    """
+
     max_idx = th.argmax(pi,dim=1) # [N x D]
     argmax_mu = th.gather(input=mu,dim=1,index=max_idx.unsqueeze(dim=1)).squeeze(dim=1) # [N x D]
     return argmax_mu
 
 def gmm_forward(pi,mu,sigma,data):
-    """
-    Compute Gaussian mixture model probability
-    
-    :param pi: GMM mixture weights [N x K x D]
-    :param mu: GMM means [N x K x D]
-    :param sigma: GMM stds [N x K x D]
-    :param data: data [N x D]
-    """
+
     data_usq = th.unsqueeze(data,1) # [N x 1 x D]
     data_exp = data_usq.expand_as(sigma) # [N x K x D]
     ONEOVERSQRT2PI = 1/np.sqrt(2*np.pi)
@@ -42,11 +32,7 @@ def gmm_forward(pi,mu,sigma,data):
     return out
 
 def gmm_uncertainties(pi, mu, sigma):
-    """ 
-    :param pi: [N x K x D]
-    :param mu: [N x K x D]
-    :param sigma: [N x K x D]
-    """
+
     # Compute Epistemic Uncertainty
     mu_avg     = th.sum(th.mul(pi,mu),dim=1).unsqueeze(1) # [N x 1 x D]
     mu_exp     = mu_avg.expand_as(mu) # [N x K x D]
@@ -152,9 +138,7 @@ class MixtureDensityNetwork(nn.Module):
         self.init_param(VERBOSE=False)
 
     def init_param(self,VERBOSE=False):
-        """
-            Initialize parameters
-        """
+
         for m_idx,m in enumerate(self.modules()):
             if VERBOSE:
                 print ("[%02d]"%(m_idx))
@@ -171,9 +155,7 @@ class MixtureDensityNetwork(nn.Module):
         self.layer_list[-1].fc_mu.bias.data.uniform_(self.mu_min,self.mu_max)
         
     def forward(self, x):
-        """
-            Forward propagate
-        """
+
         intermediate_output_list = []
         for idx,layer in enumerate(self.net):
             x = layer(x)

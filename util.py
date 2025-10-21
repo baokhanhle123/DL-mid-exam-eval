@@ -17,9 +17,7 @@ def plot_4x4_torch_tensor(
     top      = 0.92,
     hspace   = 0.1
 ):
-    """
-    :param x_torch: [B x C x W x H]
-    """
+
     batch_size = x_torch.shape[0]
     fig = plt.figure(figsize=figsize)
     for i in range(batch_size):
@@ -36,9 +34,7 @@ def plot_1xN_torch_img_tensor(
     x_torch,
     title_str_list = None,
     title_fontsize = 20):
-    """ 
-    : param x_torch: [B x C x W x H]
-    """
+
     xt_np = x_torch.cpu().numpy() # [B x C x W x H]
     n_imgs = xt_np.shape[0]
     plt.figure(figsize=(n_imgs*2,3))
@@ -62,9 +58,7 @@ def plot_1xN_torch_traj_tensor(
     ylim           = None,
     figsize        = None,
     ):
-    """ 
-    : param x_torch: [B x C x ...]
-    """
+
     xt_np = x_torch.cpu().numpy() # [B x C x W x H]
     n_trajs = xt_np.shape[0]
     L = times.shape[0]
@@ -81,9 +75,7 @@ def plot_1xN_torch_traj_tensor(
     plt.show()    
 
 def print_model_parameters(model):
-    """ 
-        Print model parameters
-    """
+
     for p_idx,(param_name,param) in enumerate(model.named_parameters()):
         print ("[%2d] parameter:[%27s] shape:[%12s] numel:[%10d]"%
             (p_idx,
@@ -94,9 +86,7 @@ def print_model_parameters(model):
             )
         
 def print_model_layers(model,x_torch):
-    """ 
-        Print model layers
-    """
+
     y_torch,intermediate_output_list = model(x_torch)
     batch_size = x_torch.shape[0]
     print ("batch_size:[%d]"%(batch_size))
@@ -113,9 +103,7 @@ def print_model_layers(model,x_torch):
             )) 
         
 def model_train(model,optm,loss,train_iter,test_iter,n_epoch,print_every,device):
-    """ 
-        Train model
-    """
+
     model.init_param(VERBOSE=False)
     model.train()
     for epoch in range(n_epoch):
@@ -141,9 +129,7 @@ def model_train(model,optm,loss,train_iter,test_iter,n_epoch,print_every,device)
                 (epoch,n_epoch,loss_val_avg,train_accr,test_accr))
         
 def model_eval(model,data_iter,device):
-    """ 
-        Evaluate model
-    """
+
     with th.no_grad():
         n_total,n_correct = 0,0
         model.eval() # evaluate (affects DropOut and BN)
@@ -161,9 +147,7 @@ def model_eval(model,data_iter,device):
     return val_accr
         
 def model_test(model,test_data,test_label,device):
-    """ 
-        Test model
-    """
+
     n_sample = 25
     sample_indices = np.random.choice(len(test_data),n_sample,replace=False)
     test_data_samples = test_data[sample_indices]
@@ -189,7 +173,7 @@ def model_test(model,test_data,test_label,device):
     plt.show()
     
 def kernel_se(x1,x2,hyp={'gain':1.0,'len':1.0}):
-    """ Squared-exponential kernel function """
+
     D = distance.cdist(x1/hyp['len'],x2/hyp['len'],'sqeuclidean')
     K = hyp['gain']*np.exp(-D)
     return K
@@ -201,9 +185,7 @@ def gp_sampler(
     meas_std = 0e-8,
     n_traj   = 1
     ):
-    """ 
-        Gaussian process sampling
-    """
+
     if len(times.shape) == 1: times = times.reshape((-1,1))
     L = times.shape[0]
     K = kernel_se(times,times,hyp={'gain':hyp_gain,'len':hyp_len}) # [L x L]
@@ -219,9 +201,7 @@ def hbm_sampler(
     meas_std = 0e-8,
     n_traj   = 1
     ):
-    """
-        Hilbert Brownian motion sampling
-    """
+
     if len(times.shape) == 1: times = times.reshape((-1,1))
     L = times.shape[0]
     K = kernel_se(times,times,hyp={'gain':hyp_gain,'len':hyp_len}) # [L x L]
@@ -251,12 +231,7 @@ def plot_ddpm_1d_result(
     lc_gt='b',lc_sample='k',
     ylim=(-4,+4),figsize=(6,3),title_str=None
     ):
-    """
-    :param times: [L x 1] ndarray
-    :param x_0: [N x C x L] torch tensor, training data
-    :param step_list: [M] ndarray, diffusion steps to append x_t
-    :param x_t_list: list of [n_sample x C x L] torch tensors
-    """
+
     
     x_data_np = x_data.detach().cpu().numpy() # [n_data x C x L]
     n_data = x_data_np.shape[0] # number of GT data
@@ -305,11 +280,7 @@ def plot_ddpm_2d_result(
     x_data,step_list,x_t_list,n_plot=1,
     tfs=10
     ):
-    """
-    :param x_data: [N x C x W x H] torch tensor, training data
-    :param step_list: [M] ndarray, diffusion steps to append x_t
-    :param x_t_list: list of [n_sample x C x L] torch tensors
-    """
+
     for sample_idx in range(n_plot):
         plt.figure(figsize=(15,2))
         for i_idx,t in enumerate(step_list):
@@ -327,11 +298,7 @@ def plot_ddpm_2d_result(
     
     
 def get_hbm_M(times,hyp_gain=1.0,hyp_len=0.1,device='cpu'):
-    """ 
-    Get a matrix M for Hilbert Brownian motion
-    :param times: [L x 1] ndarray
-    :return: [L x L] torch tensor
-    """
+
     L = times.shape[0]
     K = kernel_se(times,times,hyp={'gain':hyp_gain,'len':hyp_len}) # [L x L]
     K = K + 1e-8*np.eye(L,L)
@@ -341,12 +308,7 @@ def get_hbm_M(times,hyp_gain=1.0,hyp_len=0.1,device='cpu'):
     return M
 
 def get_resampling_steps(t_T, j, r,plot_steps=False,figsize=(15,4)):
-    """
-    Get resampling steps for repaint, inpainting method using diffusion models
-    :param t_T: maximum time steps for inpainting
-    :param j: jump length
-    :param r: the number of resampling
-    """
+
     jumps = np.zeros(t_T+1)
     for i in range(1, t_T-j, j):
         jumps[i] = r-1

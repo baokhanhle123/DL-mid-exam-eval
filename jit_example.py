@@ -8,30 +8,11 @@ StudentNumber = "202501848"  # TODO: Replace with your student number
 class MixtureDensityNetwork(nn.Module):
     def __init__(self, in_dim=1, out_dim=1, K=2, hidden=64):
         super().__init__()
-        """
-        Mixture Density Network (MDN) for modeling a mixture of Gaussian distributions.
-        Args:
-            in_dim (int): Dimension of input features.
-            out_dim (int): Dimension of output features.
-            K (int): Number of mixture components.
-            hidden (int): Number of hidden units in the hidden layer.
 
-        Declare layers:
-            self.net: Base neural network to extract features from input
-            self.pi: Layer to output mixture weights
-            self.mu: Layer to output means of Gaussian components
-            self.sigma: Layer to output standard deviations of Gaussian components        
-        """
         self.net = nn.Identity()  # Simple linear layer as placeholder
 
     def forward(self, x):
-        """
-        pi: Probabilities for each mixture component, shape (B, K)
-        mu: Means of each mixture component, shape (B, K, out_dim)
-        sigma: Standard deviations of each mixture component, shape (B, K, out_dim)
 
-        return pi, mu, sigma
-        """
         return self.net(x)
 
 
